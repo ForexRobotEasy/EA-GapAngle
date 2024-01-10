@@ -1,0 +1,75 @@
+mql5
+//+------------------------------------------------------------------+
+//|                                                                  |
+//|                     EA GapAngle Code Development                  |
+//|                                                                  |
+//|                                                                  |
+//|  Developed by: Forex Robot Easy Team                              |
+//|  Website: forexroboteasy.com                                     |
+//|                                                                  |
+//+------------------------------------------------------------------+
+
+#property copyright 'Forex Robot Easy Team'
+#property link      'forexroboteasy.com'
+
+#property strict
+
+//+------------------------------------------------------------------+
+//| Expert initialization function                                   |
+//+------------------------------------------------------------------+
+int OnInit()
+{
+    // Insert initialization code here
+    return(INIT_SUCCEEDED);
+}
+
+//+------------------------------------------------------------------+
+//| Expert deinitialization function                                 |
+//+------------------------------------------------------------------+
+void OnDeinit(const int reason)
+{
+    // Insert deinitialization code here
+}
+
+//+------------------------------------------------------------------+
+//| Expert start function                                            |
+//+------------------------------------------------------------------+
+void OnTick()
+{
+    // Get the current price
+    double currentPrice = SymbolInfoDouble(_Symbol, SYMBOL_BID);
+
+    // Calculate the Envelope indicator values
+    double upperEnvelope = iEnvelopes(_Symbol, _Period, MODE_UPPER, 14, 0, PRICE_CLOSE, 0);
+    double lowerEnvelope = iEnvelopes(_Symbol, _Period, MODE_LOWER, 14, 0, PRICE_CLOSE, 0);
+
+    // Check if the current price is above the upper envelope
+    if (currentPrice > upperEnvelope)
+    {
+        // Calculate the ZigZag indicator values
+        double zigZagHigh = iCustom(_Symbol, _Period, 'ZigZag', 12, 5, 3, 0, 0);
+        double zigZagLow = iCustom(_Symbol, _Period, 'ZigZag', 12, 5, 3, 1, 0);
+
+        // Check if the current price is below the zigzag high
+        if (currentPrice < zigZagHigh)
+        {
+            // Open a sell trade
+            OrderSend(_Symbol, OP_SELL, 0.01, currentPrice, 0, currentPrice + 20 * _Point, 0, 'EA GapAngle', 0, 0, clrRed);
+        }
+    }
+    // Check if the current price is below the lower envelope
+    else if (currentPrice < lowerEnvelope)
+    {
+        // Calculate the ZigZag indicator values
+        double zigZagHigh = iCustom(_Symbol, _Period, 'ZigZag', 12, 5, 3, 0, 0);
+        double zigZagLow = iCustom(_Symbol, _Period, 'ZigZag', 12, 5, 3, 1, 0);
+
+        // Check if the current price is above the zigzag low
+        if (currentPrice > zigZagLow)
+        {
+            // Open a buy trade
+            OrderSend(_Symbol, OP_BUY, 0.01, currentPrice, 0, currentPrice - 20 * _Point, 0, 'EA GapAngle', 0, 0, clrGreen);
+        }
+    }
+}
+
